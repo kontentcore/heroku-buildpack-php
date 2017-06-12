@@ -97,6 +97,7 @@ you retain the appropriate include mechanisms (see default configs for details).
 # we need this in configs
 export HEROKU_APP_DIR=$(pwd)
 export DOCUMENT_ROOT="$HEROKU_APP_DIR"
+export TMPDIR="${TMPDIR:-/tmp/}"
 # set a default port if none is given
 export PORT=${PORT:-$(( $RANDOM+1024 ))}
 
@@ -190,7 +191,7 @@ make sure to list them before any document root argument you're providing."
 fi
 
 # our standard logs
-logs+=( "/tmp/heroku.php-fpm.$PORT.log" "/tmp/heroku.php-fpm.www.$PORT.log" "/tmp/heroku.php-fpm.$PORT.www.slowlog" "/tmp/heroku.nginx_access.$PORT.log" )
+logs+=( "${TMPDIR}heroku.php-fpm.$PORT.log" "${TMPDIR}heroku.php-fpm.www.$PORT.log" "${TMPDIR}heroku.php-fpm.$PORT.www.slowlog" "${TMPDIR}heroku.nginx_access.$PORT.log" )
 
 # a bunch of checks; don't load any INIs to prevent newrelic etc from loading, we don't need all that stuff
 php -n -r 'exit((int)version_compare(PHP_VERSION, "5.5.11", "<"));' || { echo "This program requires PHP 5.5.11 or newer; check your 'php' command." >&2; exit 1; }

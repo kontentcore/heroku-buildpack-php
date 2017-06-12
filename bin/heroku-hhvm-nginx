@@ -183,7 +183,7 @@ make sure to list them before any document root argument you're providing."
 fi
 
 # our standard logs
-logs+=( "/tmp/heroku.nginx_access.$PORT.log" )
+logs+=( "${TMPDIR}heroku.nginx_access.$PORT.log" )
 
 hhvm --php -r 'exit((int)version_compare(HHVM_VERSION, "3.0.1", "<"));' || { echo "This program requires HHVM 3.0.1 or newer" >&2; exit 1; }
 

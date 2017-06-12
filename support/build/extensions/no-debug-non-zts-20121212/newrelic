@@ -6,6 +6,8 @@ set -o pipefail
 # fail harder
 set -eu
 
+export TMPDIR="${TMPDIR:-/tmp/}"
+
 source $(dirname $BASH_SOURCE)/../../_util/include/manifest.sh
 
 OUT_PREFIX=$1
@@ -64,11 +66,11 @@ if [[ -n "$NEW_RELIC_LICENSE_KEY" ]]; then
         #
         # Perpetually tail and redirect the daemon log file to stderr so that it
         # may be observed via 'heroku logs'.
-        touch /tmp/heroku.ext-newrelic.newrelic-daemon.${PORT}.log
-        tail -qF -n 0 /tmp/heroku.ext-newrelic.newrelic-daemon.${PORT}.log 1>&2 &
+        touch "${TMPDIR}heroku.ext-newrelic.newrelic-daemon.${PORT}.log"
+        tail -qF -n 0 "${TMPDIR}heroku.ext-newrelic.newrelic-daemon.${PORT}.log" 1>&2 &
 
         # daemon start
-        /app/.heroku/php/bin/newrelic-daemon --foreground --logfile "/tmp/heroku.ext-newrelic.newrelic-daemon.${PORT}.log" --loglevel "${NEW_RELIC_LOG_LEVEL}" --pidfile "/tmp/newrelic-daemon.pid" &
+        /app/.heroku/php/bin/newrelic-daemon --foreground --logfile "${TMPDIR}heroku.ext-newrelic.newrelic-daemon.${PORT}.log" --loglevel "${NEW_RELIC_LOG_LEVEL}" --pidfile "${TMPDIR}newrelic-daemon.pid" &
 
         # give it a moment to connect
         sleep 2
@@ -95,11 +97,11 @@ newrelic.logfile = stderr ; the stdout default messes up boots as we capture out
 ; There is code in bin/compile to create .profile.d/newrelic.sh. That script
 ; starts the daemon and runs a perpetual tail command which will redirect daemon
 ; logs to stderr so that it may be observed via 'heroku logs'.
-newrelic.daemon.logfile = /tmp/heroku.ext-newrelic.newrelic-daemon.${PORT}.log
+newrelic.daemon.logfile = ${TMPDIR}heroku.ext-newrelic.newrelic-daemon.${PORT}.log
 
 ; or else:
 ; 2015-05-18 13:00:43.144 (28 28) warning: unable to find suitable pidfile location, using none
-newrelic.daemon.pidfile = /tmp/newrelic-daemon.pid
+newrelic.daemon.pidfile = ${TMPDIR}newrelic-daemon.pid
 EOF
 
 MANIFEST_REQUIRE="${MANIFEST_REQUIRE:-"{\"heroku-sys/php\":\"${series}.*\"}"}"
